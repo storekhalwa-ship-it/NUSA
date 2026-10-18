@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NUX Token - High Speed & Low Fee on Polygon</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Ethers.js v5 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" integrity="sha512-FDcK92auA3I2Z3f1k2/3C6LdJ18XQ2Ld3O1V4V6Z6J7tV3Q8z3Z7Q3C2K3O6v4X4v1l9y2Z3X4V5O2K6V3M8w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    body { background-color: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .card { background-color: #161b22; border: 1px solid #30363d; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 md:p-8">
+
+  <!-- Header / Navbar -->
+  <header class="max-w-4xl mx-auto w-full flex justify-between items-center py-4 border-b border-gray-800">
+    <div class="flex items-center space-x-2">
+      <span class="text-2xl font-extrabold text-purple-500">NUX</span>
+      <span class="text-xs px-2 py-0.5 bg-purple-900/50 text-purple-300 rounded-full border border-purple-700">Polygon Network</span>
+    </div>
+    <button id="btnConnect" onclick="connectWallet()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition">
+      Connect Wallet
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto w-full my-8 space-y-6">
+    
+    <!-- Hero Banner -->
+    <div class="card p-6 md:p-8 rounded-2xl text-center space-y-4">
+      <h1 class="text-3xl md:text-5xl font-extrabold text-white">Solusi Transaksi Cepat & Lancar</h1>
+      <p class="text-gray-400 max-w-2xl mx-auto">
+        Token NUX resmi berjalan di jaringan **Polygon POS (EVM)**. Tanpa penundaan transaksi, biaya gas sangat murah, dan selalu aktif 24/7 tanpa bergantung pada ketersediaan miner.
+      </p>
+      
+      <div class="pt-4 flex flex-wrap justify-center gap-4">
+        <button onclick="addTokenToMetamask()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center space-x-2">
+          <span>Import NUX ke MetaMask</span>
+        </button>
+        <a href="https://polygonscan.com/token/0x661d81F2583cc92dF59adaCaB5c43897a0dE4254" target="_blank" class="bg-gray-800 hover:bg-gray-700 text-gray-200 font-semibold px-6 py-3 rounded-xl border border-gray-700 transition">
+          Lihat di PolygonScan
+        </a>
+      </div>
+    </div>
+
+    <!-- Contract Details Card -->
+    <div class="card p-6 rounded-2xl space-y-4">
+      <h2 class="text-xl font-bold text-white border-b border-gray-800 pb-2">Informasi Smart Contract</h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-gray-400">Nama Token / Simbol:</p>
+          <p class="font-semibold text-white">NUX</p>
+        </div>
+        <div>
+          <p class="text-gray-400">Decimals:</p>
+          <p class="font-semibold text-white">18</p>
+        </div>
+        <div class="md:col-span-2">
+          <p class="text-gray-400">Alamat Kontrak (Polygon):</p>
+          <div class="flex items-center space-x-2 mt-1">
+            <input type="text" readonly value="0x661d81F2583cc92dF59adaCaB5c43897a0dE4254" id="contractAddr" class="bg-gray-900 text-purple-400 font-mono text-xs md:text-sm p-3 rounded-lg w-full border border-gray-800">
+            <button onclick="copyAddress()" class="bg-gray-800 hover:bg-gray-700 text-xs px-3 py-3 rounded-lg border border-gray-700 transition">
+              Salin
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-4xl mx-auto w-full text-center py-6 text-xs text-gray-500 border-t border-gray-800">
+    &copy; 2026 NUX Project. Built on Polygon Network.
+  </footer>
+
+  <!-- Web3 Script -->
+  <script>
+    const tokenAddress = '0x661d81F2583cc92dF59adaCaB5c43897a0dE4254';
+    const tokenSymbol = 'NUX';
+    const tokenDecimals = 18;
+
+    // Connect Wallet Function
+    async function connectWallet() {
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const userAddr = accounts[0];
+          document.getElementById('btnConnect').innerText = userAddr.substring(0, 6) + '...' + userAddr.substring(userAddr.length - 4);
+          
+          // Switch to Polygon Network if not connected
+          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          if (chainId !== '0x89') { // 0x89 = Polygon Mainnet (137)
+            try {
+              await window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: '0x89' }],
+              });
+            } catch (switchError) {
+              console.error(switchError);
+            }
+          }
+        } catch (error) {
+          alert("Gagal menghubungkan dompet: " + error.message);
+        }
+      } else {
+        alert("Web3 Wallet tidak terdeteksi! Silakan gunakan Browser MetaMask atau Trust Wallet.");
+      }
+    }
+
+    // Add Token to MetaMask
+    async function addTokenToMetamask() {
+      if (window.ethereum) {
+        try {
+          const wasAdded = await window.ethereum.request({
+            method: 'wallet_watchAsset',
+            params: {
+              type: 'ERC20',
+              options: {
+                address: tokenAddress,
+                symbol: tokenSymbol,
+                decimals: tokenDecimals,
+              },
+            },
+          });
+
+          if (wasAdded) {
+            alert('Token NUX berhasil ditambahkan ke MetaMask!');
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Gagal menambahkan token.");
+        }
+      } else {
+        alert("MetaMask tidak ditemukan.");
+      }
+    }
+
+    // Copy Contract Address
+    function copyAddress() {
+      const copyText = document.getElementById("contractAddr");
+      copyText.select();
+      navigator.clipboard.writeText(copyText.value);
+      alert("Alamat kontrak berhasil disalin!");
+    }
+  </script>
+</body>
+</html>
